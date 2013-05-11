@@ -39,6 +39,7 @@ make %{?_smp_mflags}
 
 
 %files
+%license COPYING
 %{_bindir}/openal-info
 %{_libdir}/libopenal.so.*
 
