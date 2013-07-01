@@ -6,6 +6,7 @@ Summary:        A cross-platform 3D audio API
 URL:            http://connect.creativelabs.com/openal/
 Group:          System/Libraries
 Source:         %{name}-%{version}.tar.bz2
+Source1001: 	openal-soft.manifest
 BuildRequires:  cmake
 
 %description
@@ -24,6 +25,7 @@ audio applications.
 
 %prep
 %setup -q
+cp %{SOURCE1001} .
 
 %build
 %cmake .
@@ -39,11 +41,13 @@ make %{?_smp_mflags}
 
 
 %files
+%manifest %{name}.manifest
 %license COPYING
 %{_bindir}/openal-info
 %{_libdir}/libopenal.so.*
 
 %files devel
+%manifest %{name}.manifest
 %{_includedir}/AL/*.h
 %{_libdir}/libopenal.so
 %{_libdir}/pkgconfig/openal.pc
