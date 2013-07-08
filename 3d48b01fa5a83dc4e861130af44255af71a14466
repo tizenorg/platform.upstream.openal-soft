@@ -1,0 +1,8 @@
+Change-Id: I3d48b01fa5a83dc4e861130af44255af71a14466
+Code-Review+2: Ryan Ware <ware@linux.intel.com>
+Verified+1: Ryan Ware <ware@linux.intel.com>
+Submitted-by: Ryan Ware <ware@linux.intel.com>
+Submitted-at: Mon, 08 Jul 2013 09:37:06 -0700
+Reviewed-on: https://review.tizen.org/gerrit/5247
+Project: platform/upstream/openal-soft
+Branch: refs/heads/tizen
