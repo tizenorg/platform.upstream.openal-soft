@@ -8,6 +8,8 @@ Group:          System/Libraries
 Source:         %{name}-%{version}.tar.bz2
 Source1001: 	openal-soft.manifest
 BuildRequires:  cmake
+BuildRequires: pkgconfig(dlog)
+BuildRequires: pkgconfig(libpulse)
 
 %description
 OpenAL is a cross-platform 3D audio API appropriate for use with gaming
@@ -28,6 +30,9 @@ audio applications.
 cp %{SOURCE1001} .
 
 %build
+
+export CFLAGS+=" -DUSE_DLOG "
+
 %cmake .
 make %{?_smp_mflags}
 
@@ -45,6 +50,7 @@ make %{?_smp_mflags}
 %license COPYING
 %{_bindir}/openal-info
 %{_libdir}/libopenal.so.*
+/etc/openal/alsoft.conf
 
 %files devel
 %manifest %{name}.manifest
