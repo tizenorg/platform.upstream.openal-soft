@@ -37,7 +37,9 @@
 #include "alDatabuffer.h"
 #include "bs2b.h"
 #include "alu.h"
-
+#if defined(USE_DLOG)
+#include <dlog.h>
+#endif
 
 #define EmptyFuncs { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
 typedef struct BackendInfo {
@@ -637,8 +639,11 @@ void al_print(const char *fname, unsigned int line, const char *fmt, ...)
         va_end(ap);
     }
     str[sizeof(str)-1] = 0;
-
+#if defined(USE_DLOG)
+    SLOG(LOG_WARN, "MM_OPENAL", "%s", str);
+#else
     fprintf(LogFile, "%s", str);
+#endif
     fflush(LogFile);
 }
 

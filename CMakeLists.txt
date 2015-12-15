@@ -40,7 +40,7 @@ OPTION(WERROR  "Treat compile warnings as errors"      OFF)
 
 OPTION(UTILS  "Build and install utility programs"  ON)
 
-OPTION(ALSOFT_CONFIG "Install alsoft.conf configuration file" OFF)
+OPTION(ALSOFT_CONFIG "Install alsoft.conf configuration file" ON)
 
 
 IF(WIN32)
@@ -303,6 +303,14 @@ IF(WIN32)
     ENDIF()
 ENDIF()
 
+INCLUDE(FindPkgConfig)
+pkg_check_modules(REQ_PKGS REQUIRED dlog)
+FOREACH(cflags ${REQ_PKGS_CFLAGS})
+    SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${cflags}")
+ENDFOREACH(cflags)
+FOREACH(ldflags ${REQ_PKGS_LDFLAGS})
+    SET(EXTRA_LIBS "${EXTRA_LIBS} ${ldflags}")
+ENDFOREACH(ldflags)
 
 SET(OPENAL_OBJS  OpenAL32/alAuxEffectSlot.c
                  OpenAL32/alBuffer.c
@@ -337,7 +345,7 @@ SET(HAVE_SOLARIS    0)
 SET(HAVE_DSOUND     0)
 SET(HAVE_WINMM      0)
 SET(HAVE_PORTAUDIO  0)
-SET(HAVE_PULSEAUDIO 0)
+SET(HAVE_PULSEAUDIO 1)
 SET(HAVE_WAVE       0)
 
 # Check ALSA backend
@@ -426,7 +434,7 @@ IF(PORTAUDIO)
     ENDIF()
 ENDIF()
 
-# Check PortAudio backend
+# Check PulseAudio backend
 IF(PULSEAUDIO)
     CHECK_INCLUDE_FILE(pulse/pulseaudio.h HAVE_PULSE_PULSEAUDIO_H)
     IF(HAVE_PULSE_PULSEAUDIO_H)
@@ -527,6 +535,8 @@ IF(ALSOFT_CONFIG)
     MESSAGE(STATUS "Installing sample alsoft.conf")
     MESSAGE(STATUS "")
 ENDIF()
+
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -fPIC -pie")
 
 IF(UTILS)
     ADD_EXECUTABLE(openal-info utils/openal-info.c)
