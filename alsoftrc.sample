@@ -170,6 +170,7 @@
 #  system to handle. Available effects are: eaxreverb,reverb,chorus,compressor,
 #  distortion,echo,equalizer,flanger,modulator,dedicated
 #excludefx =
+excludefx = eaxreverb,reverb,chorus,compressor, distortion,echo,equalizer,flanger,modulator,dedicated
 
 ## default-reverb: (global)
 #  A reverb preset that applies by default to all sources on send 0

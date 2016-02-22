@@ -49,8 +49,15 @@ make %{?_smp_mflags}
 %manifest %{name}.manifest
 %license COPYING
 %{_bindir}/openal-info
+%{_bindir}/altonegen
 %{_libdir}/libopenal.so.*
 /etc/openal/alsoft.conf
+%exclude /usr/bin/bsincgen
+%exclude /usr/bin/makehrtf
+%exclude /usr/lib/debug/.build-id/*
+%exclude /usr/lib/debug/usr/bin/bsincgen.debug
+%exclude /usr/lib/debug/usr/bin/makehrtf.debug
+%exclude /usr/share/openal/hrtf/*
 
 %files devel
 %manifest %{name}.manifest
