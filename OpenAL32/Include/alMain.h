@@ -675,7 +675,12 @@ inline ALint GetChannelIdxByName(const ALCdevice *device, enum Channel chan)
 extern FILE *LogFile;
 
 #if defined(__GNUC__) && !defined(_WIN32) && !defined(IN_IDE_PARSER)
+#if defined(USE_DLOG)
+#include <dlog.h>
+#define AL_PRINT(T, MSG, ...) SLOG(LOG_WARN, "MM_OPENAL", "AL lib: %s %s: "MSG, T, __FUNCTION__ , ## __VA_ARGS__)
+#else
 #define AL_PRINT(T, MSG, ...) fprintf(LogFile, "AL lib: %s %s: "MSG, T, __FUNCTION__ , ## __VA_ARGS__)
+#endif
 #else
 void al_print(const char *type, const char *func, const char *fmt, ...) DECL_FORMAT(printf, 3,4);
 #define AL_PRINT(T, ...) al_print((T), __FUNCTION__, __VA_ARGS__)

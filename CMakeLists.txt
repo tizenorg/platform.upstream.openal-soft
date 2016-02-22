@@ -1166,6 +1166,17 @@ IF(WIN32 AND NOT LIBTYPE STREQUAL "STATIC")
     ENDIF()
 ENDIF()
 
+INCLUDE(FindPkgConfig)
+pkg_check_modules(REQ_PKGS REQUIRED dlog)
+FOREACH(cflags ${REQ_PKGS_CFLAGS})
+    SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${cflags}")
+ENDFOREACH(cflags)
+FOREACH(ldflags ${REQ_PKGS_LDFLAGS})
+    SET(EXTRA_LIBS "${EXTRA_LIBS} ${ldflags}")
+ENDFOREACH(ldflags)
+
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -fPIC -pie")
+
 TARGET_LINK_LIBRARIES(${LIBNAME} common ${EXTRA_LIBS})
 
 IF(ALSOFT_INSTALL)
@@ -1207,7 +1218,9 @@ ENDIF()
 # Install alsoft.conf configuration file
 IF(ALSOFT_CONFIG)
     INSTALL(FILES alsoftrc.sample
-            DESTINATION ${SHARE_INSTALL_DIR}/openal
+            DESTINATION /etc/openal
+            RENAME alsoft.conf
+            #DESTINATION ${SHARE_INSTALL_DIR}/openal
     )
     MESSAGE(STATUS "Installing sample configuration")
     MESSAGE(STATUS "")
