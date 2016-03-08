@@ -44,7 +44,7 @@ OPTION(ALSOFT_HRTF_DEFS "Install HRTF definition files" ON)
 OPTION(ALSOFT_INSTALL "Install headers and libraries" ON)
 
 
-OPTION(ALSOFT_CONFIG "Install alsoft.conf configuration file" ON)
+set(SHARE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share" CACHE STRING "The share install dir")
 
 
 IF(NOT WIN32)
@@ -606,23 +606,6 @@ IF(NOT HAVE_STDINT_H)
     ENDIF()
 ENDIF()
 
-IF(WIN32)
-    # Windows needs winmm for timeGetTime, even if the backend is disabled
-    CHECK_SHARED_LIBRARY_EXISTS(winmm timeGetTime 0 "" HAVE_LIBWINMM)
-    IF(HAVE_LIBWINMM)
-        SET(EXTRA_LIBS winmm ${EXTRA_LIBS})
-        SET(PKG_CONFIG_LIBS ${PKG_CONFIG_LIBS} -lwinmm)
-    ENDIF()
-ENDIF()
-
-INCLUDE(FindPkgConfig)
-pkg_check_modules(REQ_PKGS REQUIRED dlog)
-FOREACH(cflags ${REQ_PKGS_CFLAGS})
-    SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${cflags}")
-ENDFOREACH(cflags)
-FOREACH(ldflags ${REQ_PKGS_LDFLAGS})
-    SET(EXTRA_LIBS "${EXTRA_LIBS} ${ldflags}")
-ENDFOREACH(ldflags)
 
 SET(COMMON_OBJS  common/atomic.c
                  common/rwlock.c
@@ -682,7 +665,9 @@ SET(HAVE_DSOUND     0)
 SET(HAVE_MMDEVAPI   0)
 SET(HAVE_WINMM      0)
 SET(HAVE_PORTAUDIO  0)
-SET(HAVE_PULSEAUDIO 1)
+SET(HAVE_PULSEAUDIO 0)
+SET(HAVE_COREAUDIO  0)
+SET(HAVE_OPENSL     0)
 SET(HAVE_WAVE       0)
 
 # Check for SSE support
@@ -950,20 +935,18 @@ IF(ALSOFT_REQUIRE_MMDEVAPI AND NOT HAVE_MMDEVAPI)
     MESSAGE(FATAL_ERROR "Failed to enabled required MMDevApi backend")
 ENDIF()
 
-# Check PulseAudio backend
-IF(PULSEAUDIO)
-    CHECK_INCLUDE_FILE(pulse/pulseaudio.h HAVE_PULSE_PULSEAUDIO_H)
-    IF(HAVE_PULSE_PULSEAUDIO_H)
-        CHECK_SHARED_LIBRARY_EXISTS(pulse pa_context_new 2 "" HAVE_LIBPULSE)
-        IF(HAVE_LIBPULSE OR HAVE_DLFCN_H OR WIN32)
-            SET(HAVE_PULSEAUDIO 1)
-            SET(ALC_OBJS  ${ALC_OBJS} Alc/pulseaudio.c)
-            IF(HAVE_DLFCN_H OR WIN32)
-                SET(BACKENDS  "${BACKENDS} PulseAudio,")
-            ELSE()
-                SET(BACKENDS  "${BACKENDS} PulseAudio \(linked\),")
-                SET(EXTRA_LIBS pulse ${EXTRA_LIBS})
-            ENDIF()
+# Check PortAudio backend
+OPTION(ALSOFT_REQUIRE_PORTAUDIO "Require PortAudio backend" OFF)
+FIND_PACKAGE(PortAudio)
+IF(PORTAUDIO_FOUND)
+    OPTION(ALSOFT_BACKEND_PORTAUDIO "Enable PortAudio backend" ON)
+    IF(ALSOFT_BACKEND_PORTAUDIO)
+        SET(HAVE_PORTAUDIO 1)
+        SET(BACKENDS  "${BACKENDS} PortAudio${IS_LINKED},")
+        SET(ALC_OBJS  ${ALC_OBJS} Alc/backends/portaudio.c)
+        ADD_BACKEND_LIBS(${PORTAUDIO_LIBRARIES})
+        IF(CMAKE_VERSION VERSION_LESS "2.8.8")
+            INCLUDE_DIRECTORIES(${PORTAUDIO_INCLUDE_DIRS})
         ENDIF()
     ENDIF()
 ENDIF()
@@ -1240,9 +1223,7 @@ IF(ALSOFT_HRTF_DEFS)
     MESSAGE(STATUS "")
 ENDIF()
 
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -fPIC -pie")
-
-IF(UTILS)
+IF(ALSOFT_UTILS)
     ADD_EXECUTABLE(openal-info utils/openal-info.c)
     TARGET_LINK_LIBRARIES(openal-info ${LIBNAME})
 

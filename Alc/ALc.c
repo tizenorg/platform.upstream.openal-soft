@@ -37,9 +37,10 @@
 #include "alError.h"
 #include "bs2b.h"
 #include "alu.h"
-#if defined(USE_DLOG)
-#include <dlog.h>
-#endif
+
+#include "compat.h"
+#include "threads.h"
+#include "alstring.h"
 
 #include "backends/base.h"
 
@@ -1214,13 +1215,8 @@ static void alc_deinit(void)
         ALCbackendFactory *factory = ALCloopbackFactory_getFactory();
         V0(factory,deinit)();
     }
-    str[sizeof(str)-1] = 0;
-#if defined(USE_DLOG)
-    SLOG(LOG_WARN, "MM_OPENAL", "%s", str);
-#else
-    fprintf(LogFile, "%s", str);
-#endif
-    fflush(LogFile);
+
+    alc_deinit_safe();
 }
 
 
