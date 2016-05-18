@@ -1,6 +1,6 @@
 Name:           openal-soft
 Version:        1.13
-Release:        1
+Release:        2
 License:        LGPL-2.0+
 Summary:        A cross-platform 3D audio API
 URL:            http://connect.creativelabs.com/openal/
