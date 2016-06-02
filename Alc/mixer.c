@@ -486,6 +486,7 @@ ALvoid MixSource(ALsource *Source, ALCdevice *Device, ALuint SamplesToDo)
     enum FmtType FmtType;
     ALuint BuffersPlayed;
     ALboolean Looping;
+    ALint LoopCount;
     ALuint increment;
     resampler_t Resampler;
     ALenum State;
@@ -500,6 +501,7 @@ ALvoid MixSource(ALsource *Source, ALCdevice *Device, ALuint SamplesToDo)
     DataPosInt    = Source->position;
     DataPosFrac   = Source->position_fraction;
     Looping       = Source->bLooping;
+    LoopCount     = Source->iLooping;
     increment     = Source->Params.Step;
     Resampler     = (increment == FRACTIONONE) ? POINT_RESAMPLER :
                                                  Source->Resampler;
@@ -780,10 +782,11 @@ ALvoid MixSource(ALsource *Source, ALCdevice *Device, ALuint SamplesToDo)
                 BufferListItem = BufferListItem->next;
                 BuffersPlayed++;
             }
-            else if(Looping)
+            else if(Looping || LoopCount > 1)
             {
                 BufferListItem = Source->queue;
                 BuffersPlayed = 0;
+                --Source->iLooping;
             }
             else
             {
@@ -805,4 +808,12 @@ ALvoid MixSource(ALsource *Source, ALCdevice *Device, ALuint SamplesToDo)
     Source->position          = DataPosInt;
     Source->position_fraction = DataPosFrac;
     Source->Buffer            = BufferListItem->buffer;
+
+    if (State == AL_STOPPED) {
+         if (NULL != Source->StateCallBackInfo.CallBack) {
+            Source->StateCallBackInfo.CallBack(Source->source,
+                    State, Source->StateCallBackInfo.UserData);
+         }
+    }
+
 }

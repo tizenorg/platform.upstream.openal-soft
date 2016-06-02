@@ -105,14 +105,14 @@ typedef void ALvoid;
 
 /**
  * Directional source, inner cone angle, in degrees.
- * Range:    [0-360] 
+ * Range:    [0-360]
  * Default:  360
  */
 #define AL_CONE_INNER_ANGLE                       0x1001
 
 /**
  * Directional source, outer cone angle, in degrees.
- * Range:    [0-360] 
+ * Range:    [0-360]
  * Default:  360
  */
 #define AL_CONE_OUTER_ANGLE                       0x1002
@@ -123,22 +123,22 @@ typedef void ALvoid;
  * Default: 1.0
  */
 #define AL_PITCH                                  0x1003
-  
-/** 
+
+/**
  * Specify the current location in three dimensional space.
  * OpenAL, like OpenGL, uses a right handed coordinate system,
- *  where in a frontal default view X (thumb) points right, 
+ *  where in a frontal default view X (thumb) points right,
  *  Y points up (index finger), and Z points towards the
- *  viewer/camera (middle finger). 
+ *  viewer/camera (middle finger).
  * To switch from a left handed coordinate system, flip the
  *  sign on the Z coordinate.
  * Listener position is always in the world coordinate system.
- */ 
+ */
 #define AL_POSITION                               0x1004
-  
+
 /** Specify the current direction. */
 #define AL_DIRECTION                              0x1005
-  
+
 /** Specify the current velocity in three dimensional space. */
 #define AL_VELOCITY                               0x1006
 
@@ -151,14 +151,22 @@ typedef void ALvoid;
 #define AL_LOOPING                                0x1007
 
 /**
- * Indicate the buffer to provide sound samples. 
+ * Indicate whether source is looping.
+ * Type: ALint
+ * Range:   [0 - INT_MAX]
+ * Default: FALSE.
+ */
+#define AL_LOOP_COUNT                             0x1008
+
+/**
+ * Indicate the buffer to provide sound samples.
  * Type: ALuint.
  * Range: any valid Buffer id.
  */
 #define AL_BUFFER                                 0x1009
-  
+
 /**
- * Indicate the gain (volume amplification) applied. 
+ * Indicate the gain (volume amplification) applied.
  * Type:   ALfloat.
  * Range:  ]0.0-  ]
  * A value of 1.0 means un-attenuated/unchanged.
@@ -191,7 +199,7 @@ typedef void ALvoid;
 /**
  * Indicate listener orientation.
  *
- * at/up 
+ * at/up
  */
 #define AL_ORIENTATION                            0x100F
 
@@ -271,7 +279,7 @@ typedef void ALvoid;
  */
 #define AL_MAX_DISTANCE                           0x1023
 
-/** 
+/**
  * Sound samples: frequency, in units of Hertz [Hz].
  * This is the number of samples per second. Half of the
  *  sample frequency marks the maximum significant
@@ -295,27 +303,27 @@ typedef void ALvoid;
 /** Errors: No Error. */
 #define AL_NO_ERROR                               AL_FALSE
 
-/** 
+/**
  * Invalid Name paramater passed to AL call.
  */
 #define AL_INVALID_NAME                           0xA001
 
-/** 
+/**
  * Invalid parameter passed to AL call.
  */
 #define AL_INVALID_ENUM                           0xA002
 
-/** 
+/**
  * Invalid enum parameter value.
  */
 #define AL_INVALID_VALUE                          0xA003
 
-/** 
+/**
  * Illegal call.
  */
 #define AL_INVALID_OPERATION                      0xA004
 
-  
+
 /**
  * No mojo.
  */
@@ -360,14 +368,20 @@ typedef void ALvoid;
 #define AL_EXPONENT_DISTANCE                      0xD005
 #define AL_EXPONENT_DISTANCE_CLAMPED              0xD006
 
+/**
+ * Source state callback.
+ */
+#define AL_SOURCE_STATE_CALLBACK                  0xE000
+#define AL_SOURCE_STATE_CALLBACK_DATA             0xE001
+
 /*
  * Renderer State management
  */
 AL_API void AL_APIENTRY alEnable( ALenum capability );
 
-AL_API void AL_APIENTRY alDisable( ALenum capability ); 
+AL_API void AL_APIENTRY alDisable( ALenum capability );
 
-AL_API ALboolean AL_APIENTRY alIsEnabled( ALenum capability ); 
+AL_API ALboolean AL_APIENTRY alIsEnabled( ALenum capability );
 
 
 /*
@@ -399,7 +413,7 @@ AL_API ALdouble AL_APIENTRY alGetDouble( ALenum param );
 AL_API ALenum AL_APIENTRY alGetError( void );
 
 
-/* 
+/*
  * Extension support.
  * Query for the presence of an extension, and obtain any appropriate
  * function pointers and enum values.
@@ -431,7 +445,7 @@ AL_API void AL_APIENTRY alListenerf( ALenum param, ALfloat value );
 
 AL_API void AL_APIENTRY alListener3f( ALenum param, ALfloat value1, ALfloat value2, ALfloat value3 );
 
-AL_API void AL_APIENTRY alListenerfv( ALenum param, const ALfloat* values ); 
+AL_API void AL_APIENTRY alListenerfv( ALenum param, const ALfloat* values );
 
 AL_API void AL_APIENTRY alListeneri( ALenum param, ALint value );
 
@@ -461,7 +475,7 @@ AL_API void AL_APIENTRY alGetListeneriv( ALenum param, ALint* values );
  * Sources take the PCM data provided in the specified Buffer,
  * apply Source-specific modifications, and then
  * submit them to be mixed according to spatial arrangement etc.
- * 
+ *
  * Properties include: -
  *
  * Gain                              AL_GAIN                 ALfloat
@@ -479,6 +493,7 @@ AL_API void AL_APIENTRY alGetListeneriv( ALenum param, ALint* values );
  * Cone Outer Gain                   AL_CONE_OUTER_GAIN      ALint or ALfloat
  * Pitch                             AL_PITCH                ALfloat
  * Looping                           AL_LOOPING              ALint (AL_TRUE or AL_FALSE)
+ * Loop count                        AL_LOOP_COUNT           ALint
  * MS Offset                         AL_MSEC_OFFSET          ALint or ALfloat
  * Byte Offset                       AL_BYTE_OFFSET          ALint or ALfloat
  * Sample Offset                     AL_SAMPLE_OFFSET        ALint or ALfloat
@@ -486,31 +501,35 @@ AL_API void AL_APIENTRY alGetListeneriv( ALenum param, ALint* values );
  * State (Query only)                AL_SOURCE_STATE         ALint
  * Buffers Queued (Query only)       AL_BUFFERS_QUEUED       ALint
  * Buffers Processed (Query only)    AL_BUFFERS_PROCESSED    ALint
+ * State Callback                    AL_SOURCE_STATE_CALLBACK      LPALSOURCESTATECB
+ * State Callback user data          AL_SOURCE_STATE_CALLBACK_DATA ALviod*
  */
 
 /* Create Source objects */
-AL_API void AL_APIENTRY alGenSources( ALsizei n, ALuint* sources ); 
+AL_API void AL_APIENTRY alGenSources( ALsizei n, ALuint* sources );
 
 /* Delete Source objects */
 AL_API void AL_APIENTRY alDeleteSources( ALsizei n, const ALuint* sources );
 
-/* Verify a handle is a valid Source */ 
-AL_API ALboolean AL_APIENTRY alIsSource( ALuint sid ); 
+/* Verify a handle is a valid Source */
+AL_API ALboolean AL_APIENTRY alIsSource( ALuint sid );
 
 /*
  * Set Source parameters
  */
-AL_API void AL_APIENTRY alSourcef( ALuint sid, ALenum param, ALfloat value ); 
+AL_API void AL_APIENTRY alSourcef( ALuint sid, ALenum param, ALfloat value );
 
 AL_API void AL_APIENTRY alSource3f( ALuint sid, ALenum param, ALfloat value1, ALfloat value2, ALfloat value3 );
 
-AL_API void AL_APIENTRY alSourcefv( ALuint sid, ALenum param, const ALfloat* values ); 
+AL_API void AL_APIENTRY alSourcefv( ALuint sid, ALenum param, const ALfloat* values );
 
-AL_API void AL_APIENTRY alSourcei( ALuint sid, ALenum param, ALint value ); 
+AL_API void AL_APIENTRY alSourcei( ALuint sid, ALenum param, ALint value );
 
 AL_API void AL_APIENTRY alSource3i( ALuint sid, ALenum param, ALint value1, ALint value2, ALint value3 );
 
 AL_API void AL_APIENTRY alSourceiv( ALuint sid, ALenum param, const ALint* values );
+
+AL_API void AL_APIENTRY alSourcep(ALuint source, ALenum eParam, ALvoid* plValues);
 
 /*
  * Get Source parameters
@@ -561,7 +580,7 @@ AL_API void AL_APIENTRY alSourceRewind( ALuint sid );
 AL_API void AL_APIENTRY alSourcePause( ALuint sid );
 
 /*
- * Source Queuing 
+ * Source Queuing
  */
 AL_API void AL_APIENTRY alSourceQueueBuffers( ALuint sid, ALsizei numEntries, const ALuint *bids );
 
@@ -640,8 +659,8 @@ AL_API void AL_APIENTRY alDistanceModel( ALenum distanceModel );
  * Pointer-to-function types, useful for dynamically getting AL entry points.
  */
 typedef void           (AL_APIENTRY *LPALENABLE)( ALenum capability );
-typedef void           (AL_APIENTRY *LPALDISABLE)( ALenum capability ); 
-typedef ALboolean      (AL_APIENTRY *LPALISENABLED)( ALenum capability ); 
+typedef void           (AL_APIENTRY *LPALDISABLE)( ALenum capability );
+typedef ALboolean      (AL_APIENTRY *LPALISENABLED)( ALenum capability );
 typedef const ALchar*  (AL_APIENTRY *LPALGETSTRING)( ALenum param );
 typedef void           (AL_APIENTRY *LPALGETBOOLEANV)( ALenum param, ALboolean* data );
 typedef void           (AL_APIENTRY *LPALGETINTEGERV)( ALenum param, ALint* data );
@@ -667,13 +686,13 @@ typedef void           (AL_APIENTRY *LPALGETLISTENERFV)( ALenum param, ALfloat* 
 typedef void           (AL_APIENTRY *LPALGETLISTENERI)( ALenum param, ALint* value );
 typedef void           (AL_APIENTRY *LPALGETLISTENER3I)( ALenum param, ALint *value1, ALint *value2, ALint *value3 );
 typedef void           (AL_APIENTRY *LPALGETLISTENERIV)( ALenum param, ALint* values );
-typedef void           (AL_APIENTRY *LPALGENSOURCES)( ALsizei n, ALuint* sources ); 
+typedef void           (AL_APIENTRY *LPALGENSOURCES)( ALsizei n, ALuint* sources );
 typedef void           (AL_APIENTRY *LPALDELETESOURCES)( ALsizei n, const ALuint* sources );
-typedef ALboolean      (AL_APIENTRY *LPALISSOURCE)( ALuint sid ); 
-typedef void           (AL_APIENTRY *LPALSOURCEF)( ALuint sid, ALenum param, ALfloat value); 
+typedef ALboolean      (AL_APIENTRY *LPALISSOURCE)( ALuint sid );
+typedef void           (AL_APIENTRY *LPALSOURCEF)( ALuint sid, ALenum param, ALfloat value);
 typedef void           (AL_APIENTRY *LPALSOURCE3F)( ALuint sid, ALenum param, ALfloat value1, ALfloat value2, ALfloat value3 );
 typedef void           (AL_APIENTRY *LPALSOURCEFV)( ALuint sid, ALenum param, const ALfloat* values );
-typedef void           (AL_APIENTRY *LPALSOURCEI)( ALuint sid, ALenum param, ALint value); 
+typedef void           (AL_APIENTRY *LPALSOURCEI)( ALuint sid, ALenum param, ALint value);
 typedef void           (AL_APIENTRY *LPALSOURCE3I)( ALuint sid, ALenum param, ALint value1, ALint value2, ALint value3 );
 typedef void           (AL_APIENTRY *LPALSOURCEIV)( ALuint sid, ALenum param, const ALint* values );
 typedef void           (AL_APIENTRY *LPALGETSOURCEF)( ALuint sid, ALenum param, ALfloat* value );
@@ -712,6 +731,7 @@ typedef void           (AL_APIENTRY *LPALDOPPLERFACTOR)( ALfloat value );
 typedef void           (AL_APIENTRY *LPALDOPPLERVELOCITY)( ALfloat value );
 typedef void           (AL_APIENTRY *LPALSPEEDOFSOUND)( ALfloat value );
 typedef void           (AL_APIENTRY *LPALDISTANCEMODEL)( ALenum distanceModel );
+typedef void           (AL_APIENTRY *LPALSOURCESTATECB)( ALuint source, ALenum state, ALvoid *data );
 
 #if defined(TARGET_OS_MAC) && TARGET_OS_MAC
  #pragma export off

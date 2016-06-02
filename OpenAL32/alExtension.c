@@ -57,6 +57,7 @@ static const ALenums enumeration[] = {
     { "AL_DIRECTION",                         AL_DIRECTION                        },
     { "AL_VELOCITY",                          AL_VELOCITY                         },
     { "AL_LOOPING",                           AL_LOOPING                          },
+    { "AL_LOOP_COUNT",                        AL_LOOP_COUNT                       },
     { "AL_BUFFER",                            AL_BUFFER                           },
     { "AL_GAIN",                              AL_GAIN                             },
     { "AL_MIN_GAIN",                          AL_MIN_GAIN                         },
@@ -263,6 +264,9 @@ static const ALenums enumeration[] = {
     { "AL_RING_MODULATOR_FREQUENCY",          AL_RING_MODULATOR_FREQUENCY         },
     { "AL_RING_MODULATOR_HIGHPASS_CUTOFF",    AL_RING_MODULATOR_HIGHPASS_CUTOFF   },
     { "AL_RING_MODULATOR_WAVEFORM",           AL_RING_MODULATOR_WAVEFORM          },
+
+    { "AL_SOURCE_STATE_CALLBACK",             AL_SOURCE_STATE_CALLBACK            },
+    { "AL_SOURCE_STATE_CALLBACK_DATA",        AL_SOURCE_STATE_CALLBACK_DATA       },
 
 
     // Default

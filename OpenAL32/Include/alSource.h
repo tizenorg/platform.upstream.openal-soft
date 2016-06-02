@@ -57,6 +57,7 @@ typedef struct ALsource
     ALenum       state;
     ALuint       position;
     ALuint       position_fraction;
+    ALint        iLooping;
 
     struct ALbuffer *Buffer;
 
@@ -106,6 +107,10 @@ typedef struct ALsource
     } Params;
 
     ALvoid (*Update)(struct ALsource *self, const ALCcontext *context);
+    struct {
+        LPALSOURCESTATECB CallBack;
+        ALvoid *UserData;
+    } StateCallBackInfo;
 
     // Index to itself
     ALuint source;
