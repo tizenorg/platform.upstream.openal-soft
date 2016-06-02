@@ -50,6 +50,7 @@ static ALvoid InitSourceParams(ALsource *Source);
 static ALvoid GetSourceOffset(ALsource *Source, ALenum eName, ALdouble *Offsets, ALdouble updateLen);
 static ALboolean ApplyOffset(ALsource *Source);
 static ALint GetByteOffset(ALsource *Source);
+static ALvoid SetSourceState(ALsource *Source, ALenum state);
 
 #define LookupSource(m, k) ((ALsource*)LookupUIntMapKey(&(m), (k)))
 #define LookupBuffer(m, k) ((ALbuffer*)LookupUIntMapKey(&(m), (k)))
@@ -530,7 +531,6 @@ AL_API ALvoid AL_APIENTRY alSourcei(ALuint source,ALenum eParam,ALint lValue)
                 else
                     alSetError(pContext, AL_INVALID_VALUE);
                 break;
-
             case AL_BUFFER:
                 if(Source->state == AL_STOPPED || Source->state == AL_INITIAL)
                 {
@@ -698,6 +698,46 @@ AL_API ALvoid AL_APIENTRY alSourcei(ALuint source,ALenum eParam,ALint lValue)
 }
 
 
+AL_API ALvoid AL_APIENTRY alSourceu(ALuint source,ALenum eParam,ALuint uValue)
+{
+    ALCcontext          *pContext;
+    ALsource            *Source;
+
+    pContext = GetContextSuspended();
+    if(!pContext) return;
+
+    if((Source=LookupSource(pContext->SourceMap, source)) != NULL)
+    {
+        ALCdevice *device = pContext->Device;
+
+        switch(eParam)
+        {
+            case AL_LOOP_COUNT:
+                if(uValue > 0)
+                {
+                    Source->uLoopCount = uValue;
+                    Source->bLooping = AL_FALSE;
+                }
+                else if(uValue == 0)
+                {
+                    Source->uLoopCount = uValue;
+                    Source->bLooping = AL_TRUE;
+                }
+                else
+                    alSetError(pContext, AL_INVALID_VALUE);
+                break;
+            default:
+                alSetError(pContext, AL_INVALID_ENUM);
+                break;
+        }
+    }
+    else
+        alSetError(pContext, AL_INVALID_NAME);
+
+    ProcessContext(pContext);
+}
+
+
 AL_API void AL_APIENTRY alSource3i(ALuint source, ALenum eParam, ALint lValue1, ALint lValue2, ALint lValue3)
 {
     ALCcontext *pContext;
@@ -816,6 +856,40 @@ AL_API void AL_APIENTRY alSourceiv(ALuint source, ALenum eParam, const ALint* pl
     ProcessContext(pContext);
 }
 
+AL_API void AL_APIENTRY alSourcep(ALuint source, ALenum eParam, ALvoid* plValues)
+{
+    ALCcontext    *pContext;
+    ALsource      *Source;
+
+    pContext = GetContextSuspended();
+    if(!pContext) return;
+
+    if(plValues)
+    {
+        if((Source=LookupSource(pContext->SourceMap, source)) != NULL)
+        {
+            switch(eParam)
+            {
+                case AL_SOURCE_STATE_CALLBACK_DATA:
+                    Source->StateCallBackInfo.UserData = plValues;
+                    break;
+                case AL_SOURCE_STATE_CALLBACK:
+                    Source->StateCallBackInfo.CallBack = (LPALSOURCESTATECB)plValues;
+                    break;
+
+                default:
+                    alSetError(pContext, AL_INVALID_ENUM);
+                    break;
+            }
+        }
+        else
+            alSetError(pContext, AL_INVALID_NAME);
+    }
+    else
+        alSetError(pContext, AL_INVALID_VALUE);
+
+    ProcessContext(pContext);
+}
 
 AL_API ALvoid AL_APIENTRY alGetSourcef(ALuint source, ALenum eParam, ALfloat *pflValue)
 {
@@ -1332,7 +1406,7 @@ AL_API ALvoid AL_APIENTRY alSourcePlayv(ALsizei n, const ALuint *sources)
 
         if(!BufferList)
         {
-            Source->state = AL_STOPPED;
+            SetSourceState(Source, AL_STOPPED);
             Source->BuffersPlayed = Source->BuffersInQueue;
             Source->position = 0;
             Source->position_fraction = 0;
@@ -1342,7 +1416,7 @@ AL_API ALvoid AL_APIENTRY alSourcePlayv(ALsizei n, const ALuint *sources)
 
         if(Source->state != AL_PAUSED)
         {
-            Source->state = AL_PLAYING;
+            SetSourceState(Source, AL_PLAYING);
             Source->position = 0;
             Source->position_fraction = 0;
             Source->BuffersPlayed = 0;
@@ -1350,7 +1424,7 @@ AL_API ALvoid AL_APIENTRY alSourcePlayv(ALsizei n, const ALuint *sources)
             Source->Buffer = Source->queue->buffer;
         }
         else
-            Source->state = AL_PLAYING;
+            SetSourceState(Source, AL_PLAYING);
 
         // Check if an Offset has been set
         if(Source->lOffset)
@@ -1359,7 +1433,7 @@ AL_API ALvoid AL_APIENTRY alSourcePlayv(ALsizei n, const ALuint *sources)
         // If device is disconnected, go right to stopped
         if(!Context->Device->Connected)
         {
-            Source->state = AL_STOPPED;
+            SetSourceState(Source, AL_STOPPED);
             Source->BuffersPlayed = Source->BuffersInQueue;
             Source->position = 0;
             Source->position_fraction = 0;
@@ -1419,7 +1493,7 @@ AL_API ALvoid AL_APIENTRY alSourcePausev(ALsizei n, const ALuint *sources)
     {
         Source = (ALsource*)ALTHUNK_LOOKUPENTRY(sources[i]);
         if(Source->state == AL_PLAYING)
-            Source->state = AL_PAUSED;
+            SetSourceState(Source, AL_PAUSED);
     }
 
 done:
@@ -1466,7 +1540,7 @@ AL_API ALvoid AL_APIENTRY alSourceStopv(ALsizei n, const ALuint *sources)
         Source = (ALsource*)ALTHUNK_LOOKUPENTRY(sources[i]);
         if(Source->state != AL_INITIAL)
         {
-            Source->state = AL_STOPPED;
+            SetSourceState(Source, AL_STOPPED);
             Source->BuffersPlayed = Source->BuffersInQueue;
         }
         Source->lOffset = 0;
@@ -1516,7 +1590,7 @@ AL_API ALvoid AL_APIENTRY alSourceRewindv(ALsizei n, const ALuint *sources)
         Source = (ALsource*)ALTHUNK_LOOKUPENTRY(sources[i]);
         if(Source->state != AL_INITIAL)
         {
-            Source->state = AL_INITIAL;
+            SetSourceState(Source, AL_INITIAL);
             Source->position = 0;
             Source->position_fraction = 0;
             Source->BuffersPlayed = 0;
@@ -1528,6 +1602,24 @@ AL_API ALvoid AL_APIENTRY alSourceRewindv(ALsizei n, const ALuint *sources)
 
 done:
     ProcessContext(Context);
+}
+
+/*
+    SetSourceState
+
+    Apply a playback offset to the Source.  This function will update the queue (to correctly
+    mark buffers as 'pending' or 'processed' depending upon the new offset.
+*/
+static ALvoid SetSourceState(ALsource *Source, ALenum state)
+{
+    if (Source->state != state) {
+         Source->state = state;
+
+         if (NULL != Source->StateCallBackInfo.CallBack) {
+            Source->StateCallBackInfo.CallBack(Source->source,
+                    state, Source->StateCallBackInfo.UserData);
+         }
+    }
 }
 
 
@@ -1763,6 +1855,7 @@ static ALvoid InitSourceParams(ALsource *Source)
     Source->flMaxDistance = FLT_MAX;
     Source->flRollOffFactor = 1.0f;
     Source->bLooping = AL_FALSE;
+    Source->uLoopCount = 1;
     Source->flGain = 1.0f;
     Source->flMinGain = 0.0f;
     Source->flMaxGain = 1.0f;
@@ -1777,6 +1870,8 @@ static ALvoid InitSourceParams(ALsource *Source)
     Source->DopplerFactor = 1.0f;
 
     Source->DistanceModel = AL_INVERSE_DISTANCE_CLAMPED;
+    Source->StateCallBackInfo.CallBack = NULL;
+    Source->StateCallBackInfo.UserData = NULL;
 
     Source->Resampler = DefaultResampler;
 
