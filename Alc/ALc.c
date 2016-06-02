@@ -161,6 +161,7 @@ static const ALCfunction alcFunctions[] = {
     { "alSource3f",                 (ALCvoid *) alSource3f               },
     { "alSourcefv",                 (ALCvoid *) alSourcefv               },
     { "alSourcei",                  (ALCvoid *) alSourcei                },
+	{ "alSourceu",                  (ALCvoid *) alSourceu                },
     { "alSource3i",                 (ALCvoid *) alSource3i               },
     { "alSourceiv",                 (ALCvoid *) alSourceiv               },
     { "alGetSourcef",               (ALCvoid *) alGetSourcef             },
