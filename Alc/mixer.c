@@ -374,6 +374,9 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
     ALbufferlistitem *BufferListItem;
     ALuint DataPosInt, DataPosFrac;
     ALboolean Looping;
+#ifdef AL_TIZEN_MODIFICATION
+    ALuint LoopCount;
+#endif
     ALuint increment;
     ALenum State;
     ALuint OutPos;
@@ -389,6 +392,9 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
     DataPosInt     = Source->position;
     DataPosFrac    = Source->position_fraction;
     Looping        = Source->Looping;
+#ifdef AL_TIZEN_MODIFICATION
+    LoopCount      = Source->LoopCount;
+#endif
     NumChannels    = Source->NumChannels;
     SampleSize     = Source->SampleSize;
     increment      = voice->Step;
@@ -614,8 +620,16 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
 
             if(!(BufferListItem=BufferListItem->next))
             {
+#ifdef AL_TIZEN_MODIFICATION
+                if(Looping || LoopCount > 1)
+                {
+                    BufferListItem = ATOMIC_LOAD(&Source->queue);
+                    --Source->LoopCount;
+                }
+#else
                 if(Looping)
                     BufferListItem = ATOMIC_LOAD(&Source->queue);
+#endif
                 else
                 {
                     State = AL_STOPPED;
