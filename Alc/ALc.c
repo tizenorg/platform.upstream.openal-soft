@@ -381,6 +381,8 @@ static const ALCenums enumeration[] = {
     DECL(AL_LOOPING),
 #ifdef AL_TIZEN_MODIFICATION
     DECL(AL_LOOP_COUNT),
+    DECL(AL_SOURCE_STATE_CALLBACK),
+    DECL(AL_SOURCE_STATE_CALLBACK_DATA),
 #endif
     DECL(AL_BUFFER),
     DECL(AL_GAIN),

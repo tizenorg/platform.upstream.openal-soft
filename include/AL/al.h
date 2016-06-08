@@ -457,6 +457,12 @@ AL_API void AL_APIENTRY alDistanceModel(ALenum distanceModel);
 #define AL_EXPONENT_DISTANCE                     0xD005
 #define AL_EXPONENT_DISTANCE_CLAMPED             0xD006
 
+/**
+ * Source state callback.
+ */
+#define AL_SOURCE_STATE_CALLBACK                  0xE000
+#define AL_SOURCE_STATE_CALLBACK_DATA             0xE001
+
 /** Renderer State management. */
 AL_API void AL_APIENTRY alEnable(ALenum capability);
 AL_API void AL_APIENTRY alDisable(ALenum capability);
@@ -522,6 +528,10 @@ AL_API void AL_APIENTRY alSourcefv(ALuint source, ALenum param, const ALfloat *v
 AL_API void AL_APIENTRY alSourcei(ALuint source, ALenum param, ALint value);
 AL_API void AL_APIENTRY alSource3i(ALuint source, ALenum param, ALint value1, ALint value2, ALint value3);
 AL_API void AL_APIENTRY alSourceiv(ALuint source, ALenum param, const ALint *values);
+
+#ifdef AL_TIZEN_MODIFICATION
+AL_API void AL_APIENTRY alSourcep(ALuint source, ALenum param, ALvoid* values);
+#endif
 
 /** Get Source parameters. */
 AL_API void AL_APIENTRY alGetSourcef(ALuint source, ALenum param, ALfloat *value);
@@ -656,6 +666,9 @@ typedef void          (AL_APIENTRY *LPALDOPPLERFACTOR)(ALfloat value);
 typedef void          (AL_APIENTRY *LPALDOPPLERVELOCITY)(ALfloat value);
 typedef void          (AL_APIENTRY *LPALSPEEDOFSOUND)(ALfloat value);
 typedef void          (AL_APIENTRY *LPALDISTANCEMODEL)(ALenum distanceModel);
+#ifdef AL_TIZEN_MODIFICATION
+typedef void          (AL_APIENTRY *LPALSOURCESTATECB)(ALuint source, ALenum state, ALvoid *data);
+#endif
 
 #if defined(__cplusplus)
 }  /* extern "C" */
