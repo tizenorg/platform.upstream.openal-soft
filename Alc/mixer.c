@@ -636,6 +636,11 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
                     BufferListItem = NULL;
                     DataPosInt = 0;
                     DataPosFrac = 0;
+#ifdef AL_TIZEN_MODIFICATION
+                    if (NULL != Source->StateCallBackInfo.CallBack)
+                        Source->StateCallBackInfo.CallBack(Source->id, State,
+                            Source->StateCallBackInfo.UserData);
+#endif
                     break;
                 }
             }
