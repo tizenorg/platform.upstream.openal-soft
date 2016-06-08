@@ -103,6 +103,15 @@ typedef struct ALsource {
      * Number of repeats Source should be played before finishing playback.
      */
     ALuint LoopCount;
+
+    /**
+     * Callback function will be called when stream state is changed, and
+     * user data to be transfered to the callback as parameter.
+     */
+    struct {
+        LPALSOURCESTATECB CallBack;
+        ALvoid *UserData;
+    } StateCallBackInfo;
 #endif
 
     /** Source Buffer Queue info. */
