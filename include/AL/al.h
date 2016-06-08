@@ -173,6 +173,14 @@ typedef void ALvoid;
 #define AL_LOOPING                               0x1007
 
 /**
+ * Indicate whether source is looping.
+ * Type:    ALuint
+ * Range:   [0 - UINT_MAX]
+ * Default: 1
+ */
+#define AL_LOOP_COUNT                             0x1008
+
+/**
  * Source buffer.
  * Type:  ALuint
  * Range: any valid Buffer.
