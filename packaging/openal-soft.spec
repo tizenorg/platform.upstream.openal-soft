@@ -32,6 +32,7 @@ cp %{SOURCE1001} .
 %build
 
 export CFLAGS+=" -DUSE_DLOG "
+export TIZEN_BUILD=1
 
 %cmake .
 make %{?_smp_mflags}
