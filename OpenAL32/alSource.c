@@ -633,7 +633,7 @@ static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SourceProp p
                 Source->Looping = AL_TRUE;
             }
             return AL_TRUE;
-		}
+        }
 #endif
 
         case AL_BUFFER:
@@ -1788,6 +1788,38 @@ AL_API void AL_APIENTRY alSourceiv(ALuint source, ALenum param, const ALint *val
 }
 
 
+#ifdef __TIZEN__
+AL_API void AL_APIENTRY alSourcep(ALuint source, ALenum param, ALvoid* value)
+{
+    ALCcontext    *Context;
+    ALsource      *Source;
+
+    Context = GetContextRef();
+    if(!Context) return;
+
+    if((Source=LookupSource(Context, source)) == NULL)
+        alSetError(Context, AL_INVALID_NAME);
+    else if(!value)
+        alSetError(Context, AL_INVALID_VALUE);
+    else
+        switch(param)
+        {
+            case AL_SOURCE_STATE_CALLBACK_DATA:
+                Source->StateCallBackInfo.UserData = value;
+                break;
+            case AL_SOURCE_STATE_CALLBACK:
+                Source->StateCallBackInfo.CallBack = (LPALSOURCESTATECB)value;
+                break;
+            default:
+                alSetError(Context, AL_INVALID_ENUM);
+                break;
+        }
+
+    ALCcontext_DecRef(Context);
+}
+#endif
+
+
 AL_API ALvoid AL_APIENTRY alSourcei64SOFT(ALuint source, ALenum param, ALint64SOFT value)
 {
     ALCcontext *Context;
@@ -2604,6 +2636,11 @@ static ALvoid InitSourceParams(ALsource *Source)
 
     Source->DistanceModel = DefaultDistanceModel;
 
+#ifdef __TIZEN__
+    Source->StateCallBackInfo.CallBack = NULL;
+    Source->StateCallBackInfo.UserData = NULL;
+#endif
+
     Source->state = AL_INITIAL;
     Source->new_state = AL_NONE;
     Source->SourceType = AL_UNDETERMINED;
@@ -2637,6 +2674,9 @@ static ALvoid InitSourceParams(ALsource *Source)
 ALvoid SetSourceState(ALsource *Source, ALCcontext *Context, ALenum state)
 {
     WriteLock(&Source->queue_lock);
+#ifdef __TIZEN__
+    ALenum prev_state = Source->state;
+#endif
     if(state == AL_PLAYING)
     {
         ALCdevice *device = Context->Device;
@@ -2763,6 +2803,13 @@ ALvoid SetSourceState(ALsource *Source, ALCcontext *Context, ALenum state)
         Source->Offset = -1.0;
     }
     WriteUnlock(&Source->queue_lock);
+#ifdef __TIZEN__
+    if (Source->StateCallBackInfo.CallBack)
+    {
+        Source->StateCallBackInfo.CallBack(Source->id, state,
+                Source->StateCallBackInfo.UserData);
+    }
+#endif
 }
 
 /* GetSourceSampleOffset
