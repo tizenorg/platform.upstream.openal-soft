@@ -98,6 +98,13 @@ typedef struct ALsource {
     ALuint position;
     ALuint position_fraction;
 
+#ifdef __TIZEN__
+    /**
+     * Number of repeats Source should be played before finishing playback.
+     */
+    ALuint LoopCount;
+#endif
+
     /** Source Buffer Queue info. */
     ATOMIC(ALbufferlistitem*) queue;
     ATOMIC(ALbufferlistitem*) current_buffer;

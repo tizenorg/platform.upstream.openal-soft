@@ -271,6 +271,9 @@ static ALint IntValsByProp(ALenum prop)
         case AL_DISTANCE_MODEL:
         case AL_SOURCE_RELATIVE:
         case AL_LOOPING:
+#ifdef __TIZEN__
+        case AL_LOOP_COUNT:
+#endif
         case AL_BUFFER:
         case AL_SOURCE_STATE:
         case AL_BUFFERS_QUEUED:
@@ -614,6 +617,24 @@ static ALboolean SetSourceiv(ALsource *Source, ALCcontext *Context, SourceProp p
 
             Source->Looping = (ALboolean)*values;
             return AL_TRUE;
+
+#ifdef __TIZEN__
+        case AL_LOOP_COUNT:
+        {
+            ALuint uValue = (ALuint)(*values);
+            if(uValue > 0)
+            {
+                Source->LoopCount = uValue;
+                Source->Looping = AL_FALSE;
+            }
+            else if(uValue == 0)
+            {
+                Source->LoopCount = uValue;
+                Source->Looping = AL_TRUE;
+            }
+            return AL_TRUE;
+		}
+#endif
 
         case AL_BUFFER:
             CHECKVAL(*values == 0 || (buffer=LookupBuffer(device, *values)) != NULL);
@@ -1726,6 +1747,7 @@ AL_API ALvoid AL_APIENTRY alSourcei(ALuint source, ALenum param, ALint value)
     ALCcontext_DecRef(Context);
 }
 
+
 AL_API void AL_APIENTRY alSource3i(ALuint source, ALenum param, ALint value1, ALint value2, ALint value3)
 {
     ALCcontext *Context;
@@ -2563,6 +2585,9 @@ static ALvoid InitSourceParams(ALsource *Source)
     Source->MaxDistance = FLT_MAX;
     Source->RollOffFactor = 1.0f;
     Source->Looping = AL_FALSE;
+#ifdef __TIZEN__
+    Source->LoopCount = 1;
+#endif
     Source->Gain = 1.0f;
     Source->MinGain = 0.0f;
     Source->MaxGain = 1.0f;

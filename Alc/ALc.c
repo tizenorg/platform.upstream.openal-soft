@@ -379,6 +379,9 @@ static const ALCenums enumeration[] = {
     DECL(AL_DIRECTION),
     DECL(AL_VELOCITY),
     DECL(AL_LOOPING),
+#ifdef __TIZEN__
+    DECL(AL_LOOP_COUNT),
+#endif
     DECL(AL_BUFFER),
     DECL(AL_GAIN),
     DECL(AL_MIN_GAIN),
