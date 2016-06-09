@@ -1240,18 +1240,18 @@ IF(ALSOFT_UTILS)
     ADD_EXECUTABLE(openal-info utils/openal-info.c)
     TARGET_LINK_LIBRARIES(openal-info ${LIBNAME})
 
-    ADD_EXECUTABLE(makehrtf utils/makehrtf.c)
-    IF(HAVE_LIBM)
-        TARGET_LINK_LIBRARIES(makehrtf m)
-    ENDIF()
+#    ADD_EXECUTABLE(makehrtf utils/makehrtf.c)
+#    IF(HAVE_LIBM)
+#        TARGET_LINK_LIBRARIES(makehrtf m)
+#    ENDIF()
 
-    ADD_EXECUTABLE(bsincgen utils/bsincgen.c)
-    IF(HAVE_LIBM)
-        TARGET_LINK_LIBRARIES(bsincgen m)
-    ENDIF()
+#    ADD_EXECUTABLE(bsincgen utils/bsincgen.c)
+#    IF(HAVE_LIBM)
+#        TARGET_LINK_LIBRARIES(bsincgen m)
+#    ENDIF()
 
     IF(ALSOFT_INSTALL)
-        INSTALL(TARGETS openal-info makehrtf bsincgen
+        INSTALL(TARGETS openal-info #makehrtf bsincgen
                 RUNTIME DESTINATION bin
                 LIBRARY DESTINATION "lib${LIB_SUFFIX}"
                 ARCHIVE DESTINATION "lib${LIB_SUFFIX}"

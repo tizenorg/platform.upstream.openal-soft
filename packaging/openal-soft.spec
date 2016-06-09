@@ -1,6 +1,6 @@
 Name:           openal-soft
 Version:        1.17.2
-Release:        0
+Release:        1
 License:        LGPL-2.0+
 Summary:        A cross-platform 3D audio API
 URL:            http://connect.creativelabs.com/openal/
@@ -52,11 +52,7 @@ make %{?_smp_mflags}
 %{_bindir}/altonegen
 %{_libdir}/libopenal.so.*
 /etc/openal/alsoft.conf
-%exclude %{_bindir}/bsincgen
-%exclude %{_bindir}/makehrtf
-%exclude %{_libdir}/debug/.build-id/*
-%exclude %{_libdir}/debug%{_bindir}/bsincgen.debug
-%exclude %{_libdir}/debug%{_bindir}/makehrtf.debug
+%exclude /usr/lib/debug/.build-id/*
 %exclude %{_datadir}/openal/hrtf/*
 
 %files devel
