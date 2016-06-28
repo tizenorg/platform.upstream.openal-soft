@@ -1,6 +1,6 @@
 Name:           openal-soft
 Version:        1.17.2
-Release:        1
+Release:        2
 License:        LGPL-2.0+
 Summary:        A cross-platform 3D audio API
 URL:            http://connect.creativelabs.com/openal/
@@ -31,7 +31,7 @@ cp %{SOURCE1001} .
 
 %build
 
-export CFLAGS+=" -DUSE_DLOG "
+export CFLAGS+=" -D__TIZEN__ -DUSE_DLOG "
 
 %cmake .
 make %{?_smp_mflags}

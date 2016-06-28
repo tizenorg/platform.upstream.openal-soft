@@ -2168,11 +2168,45 @@ AL_API ALvoid AL_APIENTRY alSourcePlayv(ALsizei n, const ALuint *sources)
         if(context->DeferUpdates) source->new_state = AL_PLAYING;
         else SetSourceState(source, context, AL_PLAYING);
     }
+
+#ifdef __TIZEN__
+    /* Resume device if device is paused by alcDevicePauseSOFT() in alSourcePausev() */
+    alcDeviceResumeSOFT(context->Device);
+#endif
+
     UnlockContext(context);
 
 done:
     ALCcontext_DecRef(context);
 }
+
+#ifdef __TIZEN__
+static ALboolean _alPlayingSourcesExists(ALCcontext *context)
+{
+    ALsource *source = NULL;
+    ALsizei i;
+
+    if (context == NULL)
+    {
+        /* As this is error case, I think device would be safe to keep active */
+        return AL_TRUE;
+    }
+
+    for(i = 0; i < context->SourceMap.size; i++)
+    {
+        source = (ALsource *)context->SourceMap.array[i].value;
+        TRACE("[total:%d, index:%d, key:%d, state:%d]\n",
+                context->SourceMap.size, i, source->id, source->state);
+        if(source->state == AL_PLAYING)
+        {
+            TRACE(" - source[%d] is still playing....\n", source->id);
+            return AL_TRUE;
+        }
+    }
+
+    return AL_FALSE;
+}
+#endif
 
 AL_API ALvoid AL_APIENTRY alSourcePause(ALuint source)
 {
@@ -2203,6 +2237,16 @@ AL_API ALvoid AL_APIENTRY alSourcePausev(ALsizei n, const ALuint *sources)
         else SetSourceState(source, context, AL_PAUSED);
     }
     UnlockContext(context);
+
+#ifdef __TIZEN__
+    /* if there are no playing sources, pause DEVICE to let backend device can suspend
+       device will be resumed when one of source is going to be played by alSourcePlay */
+    if(!_alPlayingSourcesExists(context))
+    {
+        TRACE("No playing source in this context, do alcDevicePauseSOFT()!");
+        alcDevicePauseSOFT(context->Device);
+     }
+#endif
 
 done:
     ALCcontext_DecRef(context);
